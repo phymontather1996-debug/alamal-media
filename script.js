@@ -457,13 +457,17 @@ function renderMyTasks() {
 }
 
 window.completeTask = function (id) {
+    if (confirm('هل أتممت المهمة؟')) {
+        updateTaskStatus(id, 'completed');
+    }
+};
 
-    // --- Helper: Get Logo as Base64 (Optional/Fallback) or use direct link ---
-    // For simplicity and speed on GitHub Pages, we will use the relative path 'logo.png'
-    // But to ensure it prints even if loose connection, we rely on browser cache.
+// --- Helper: Get Logo as Base64 (Optional/Fallback) or use direct link ---
+// For simplicity and speed on GitHub Pages, we will use the relative path 'logo.png'
+// But to ensure it prints even if loose connection, we rely on browser cache.
 
-    function getPrintStyle() {
-        return `
+function getPrintStyle() {
+    return `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&display=swap');
         @page { 
@@ -572,20 +576,20 @@ window.completeTask = function (id) {
         }
     </style>
     `;
-    }
+}
 
-    window.printDailyLeave = function () {
-        const name = document.getElementById('leaveName').value;
-        const days = document.getElementById('leaveDays').value;
-        const date = document.getElementById('leaveDate').value;
-        const reason = document.getElementById('leaveReason').value;
+window.printDailyLeave = function () {
+    const name = document.getElementById('leaveName').value;
+    const days = document.getElementById('leaveDays').value;
+    const date = document.getElementById('leaveDate').value;
+    const reason = document.getElementById('leaveReason').value;
 
-        if (!name || !days || !date || !reason) { alert('يرجى ملء كافة الحقول'); return; }
+    if (!name || !days || !date || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
-        const formattedDate = new Date(date).toLocaleDateString('ar-IQ');
+    const formattedDate = new Date(date).toLocaleDateString('ar-IQ');
 
-        const win = window.open('', '', 'height=900,width=800');
-        win.document.write(`
+    const win = window.open('', '', 'height=900,width=800');
+    win.document.write(`
         <html>
         <head><title>طلب إجازة اعتيادية</title>${getPrintStyle()}</head>
         <body>
@@ -626,31 +630,31 @@ window.completeTask = function (id) {
         </body>
         </html>
     `);
-        win.document.close();
-        // Allow image to load
-        win.onload = function () { setTimeout(() => win.print(), 500); };
+    win.document.close();
+    // Allow image to load
+    win.onload = function () { setTimeout(() => win.print(), 500); };
+};
+
+window.printTimeLeave = function () {
+    const name = document.getElementById('timeLeaveName').value;
+    const tFrom = document.getElementById('timeFrom').value;
+    const tTo = document.getElementById('timeTo').value;
+    const dateInput = document.getElementById('timeLeaveDate').value; // Read from input
+    const reason = document.getElementById('timeLeaveReason').value;
+
+    if (!name || !tFrom || !tTo || !reason) { alert('يرجى ملء كافة الحقول'); return; }
+
+    const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('ar-IQ') : new Date().toLocaleDateString('ar-IQ');
+
+    const formatTime = (t) => {
+        let [h, m] = t.split(':');
+        let ampm = h >= 12 ? 'م' : 'ص';
+        h = h % 12 || 12;
+        return `${h}:${m} ${ampm}`;
     };
 
-    window.printTimeLeave = function () {
-        const name = document.getElementById('timeLeaveName').value;
-        const tFrom = document.getElementById('timeFrom').value;
-        const tTo = document.getElementById('timeTo').value;
-        const dateInput = document.getElementById('timeLeaveDate').value; // Read from input
-        const reason = document.getElementById('timeLeaveReason').value;
-
-        if (!name || !tFrom || !tTo || !reason) { alert('يرجى ملء كافة الحقول'); return; }
-
-        const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('ar-IQ') : new Date().toLocaleDateString('ar-IQ');
-
-        const formatTime = (t) => {
-            let [h, m] = t.split(':');
-            let ampm = h >= 12 ? 'م' : 'ص';
-            h = h % 12 || 12;
-            return `${h}:${m} ${ampm}`;
-        };
-
-        const win = window.open('', '', 'height=900,width=800');
-        win.document.write(`
+    const win = window.open('', '', 'height=900,width=800');
+    win.document.write(`
         <html>
         <head><title>طلب إجازة زمنية</title>${getPrintStyle()}</head>
         <body>
@@ -691,48 +695,48 @@ window.completeTask = function (id) {
         </body>
         </html>
     `);
-        win.document.close();
-        win.onload = function () { setTimeout(() => win.print(), 500); };
-    };
+    win.document.close();
+    win.onload = function () { setTimeout(() => win.print(), 500); };
+};
 
-    // Auto-set Date to Today when opening forms
-    document.querySelectorAll('input[type="date"]').forEach(input => {
-        input.valueAsDate = new Date();
-    });
+// Auto-set Date to Today when opening forms
+document.querySelectorAll('input[type="date"]').forEach(input => {
+    input.valueAsDate = new Date();
+});
 
-    window.refreshData = function (btn) {
-        if (btn) btn.disabled = true;
-        fetchEmployees().then(() => fetchTasks()).finally(() => { if (btn) btn.disabled = false; alert('تم التحديث'); });
-    };
+window.refreshData = function (btn) {
+    if (btn) btn.disabled = true;
+    fetchEmployees().then(() => fetchTasks()).finally(() => { if (btn) btn.disabled = false; alert('تم التحديث'); });
+};
 
 
-    // Global Exposure
-    window.renderMyProfile = function () {
-        if (!currentUser) return;
-        document.getElementById('profile-name-display').innerText = currentUser.fullName;
-        document.getElementById('profile-img-display').src = currentUser.image || 'assets/user-placeholder.png';
-        // ... Fill other fields ...
-    };
+// Global Exposure
+window.renderMyProfile = function () {
+    if (!currentUser) return;
+    document.getElementById('profile-name-display').innerText = currentUser.fullName;
+    document.getElementById('profile-img-display').src = currentUser.image || 'assets/user-placeholder.png';
+    // ... Fill other fields ...
+};
 
-    // 9. Seeding Helper
-    window.seedDatabase = async function () {
-        if (!confirm('هل تريد إضافة بيانات تجريبية (محمد، سارة، علي)؟')) return;
+// 9. Seeding Helper
+window.seedDatabase = async function () {
+    if (!confirm('هل تريد إضافة بيانات تجريبية (محمد، سارة، علي)؟')) return;
 
-        // Tiny base64 placeholder for avatars
-        const DUMMY_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+    // Tiny base64 placeholder for avatars
+    const DUMMY_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
-        const dummyEmployees = [
-            { fullName: "محمد أحمد", specialization: "مصمم جرافيك", age: 25, title: "موظف", phone: "07700000001", address: "بغداد", instagram: "@mohammed", image: DUMMY_IMG },
-            { fullName: "سارة علي", specialization: "كاتب محتوى", age: 24, title: "موظفة", phone: "07700000002", address: "البصرة", instagram: "@sara", image: DUMMY_IMG },
-            { fullName: "علي حسين عبد", specialization: "مسؤول شعبة الاعلام", age: 30, title: "مدير", phone: "07800000000", address: "كربلاء", instagram: "@ali", image: DUMMY_IMG }
-        ];
+    const dummyEmployees = [
+        { fullName: "محمد أحمد", specialization: "مصمم جرافيك", age: 25, title: "موظف", phone: "07700000001", address: "بغداد", instagram: "@mohammed", image: DUMMY_IMG },
+        { fullName: "سارة علي", specialization: "كاتب محتوى", age: 24, title: "موظفة", phone: "07700000002", address: "البصرة", instagram: "@sara", image: DUMMY_IMG },
+        { fullName: "علي حسين عبد", specialization: "مسؤول شعبة الاعلام", age: 30, title: "مدير", phone: "07800000000", address: "كربلاء", instagram: "@ali", image: DUMMY_IMG }
+    ];
 
-        alert('⏳ جاري الإضافة... قد يستغرق دقيقة');
+    alert('⏳ جاري الإضافة... قد يستغرق دقيقة');
 
-        for (const emp of dummyEmployees) {
-            await callApi("addEmployee", emp, "POST");
-        }
+    for (const emp of dummyEmployees) {
+        await callApi("addEmployee", emp, "POST");
+    }
 
-        alert('✅ تم إضافة البيانات التجريبية! سيتم تحديث الصفحة.');
-        fetchEmployees();
-    };
+    alert('✅ تم إضافة البيانات التجريبية! سيتم تحديث الصفحة.');
+    fetchEmployees();
+};
