@@ -532,12 +532,23 @@ window.printDailyLeave = function () {
 
 window.printTimeLeave = function () {
     const name = document.getElementById('timeLeaveName').value;
-    const hours = document.getElementById('timeLeaveHours').value;
+    const tFrom = document.getElementById('timeFrom').value;
+    const tTo = document.getElementById('timeTo').value;
     const reason = document.getElementById('timeLeaveReason').value;
     const date = new Date().toLocaleDateString('ar-IQ'); // Dynamic Date
     const time = new Date().toLocaleTimeString('ar-IQ'); // Dynamic Time
 
-    if (!name || !hours) { alert('يرجى ملء كافة الحقول'); return; }
+    if (!name || !tFrom || !tTo) { alert('يرجى ملء كافة الحقول'); return; }
+
+    // Format 12H time for display
+    const formatTime = (t) => {
+        let [h, m] = t.split(':');
+        let ampm = h >= 12 ? 'م' : 'ص';
+        h = h % 12 || 12;
+        return `${h}:${m} ${ampm}`;
+    };
+
+    const period = `من الساعة (${formatTime(tFrom)}) إلى الساعة (${formatTime(tTo)})`;
 
     const win = window.open('', '', 'height=800,width=800');
     win.document.write(`
@@ -565,7 +576,7 @@ window.printTimeLeave = function () {
             
             <div class="content">
                 <p>السيد رئيس القسم المحترم..</p>
-                <p>يرجى التفضل بالموافقة على منحي إجازة زمنية لمدة <span class="field">${hours}</span> ساعة/ساعات.</p>
+                <p>يرجى التفضل بالموافقة على منحي إجازة زمنية <span class="field">${period}</span>.</p>
                 <p>السبب: <span class="field">${reason}</span>.</p>
                 <br>
                 <p>مقدم الطلب: <span class="field">${name}</span></p>
