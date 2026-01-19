@@ -1,0 +1,632 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شعبة الإعلام - كلية الأمل للعلوم الطبية التخصصية</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- زر الرئيسية العائم -->
+    <button onclick="showSection('landing')"
+        style="position: fixed; top: 20px; left: 20px; z-index: 1000; background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; cursor: pointer; color: var(--primary-color); font-family: 'Cairo', sans-serif;">
+        <i class="fa-solid fa-house"></i> الرئيسية
+    </button>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <img src="logo.png" alt="شعار كلية الأمل" class="logo-img">
+                </div>
+                <div class="header-text">
+                    <h1>كلية الأمل للعلوم الطبية التخصصية</h1>
+                    <p>نظام إدارة الموظفين - كلية الأمل للعلوم الطبية التخصصية</p>
+                </div>
+                <nav class="main-nav" id="main-nav" style="display: none;">
+                    <!-- ستظهر الأزرار هنا بناءً على الصلاحية لاحقاً -->
+                    <button id="btn-dashboard" class="nav-btn active">
+                        <i class="fa-solid fa-house"></i> الرئيسية
+                    </button>
+                    <button id="btn-logout" class="nav-btn" onclick="logoutSystem()">
+                        <i class="fa-solid fa-right-from-bracket"></i> خروج
+                    </button>
+                </nav>
+            </div>
+    </header>
+
+    <main class="container">
+        <!-- الواجهة الرئيسية (البوابات) -->
+        <section id="section-landing" class="section fade-in">
+            <div class="portal-grid">
+                <!-- بوابة الإدارة -->
+                <div class="portal-card" onclick="showSection('login')">
+                    <div class="portal-icon"><i class="fa-solid fa-user-shield"></i></div>
+                    <h3>بوابة الإدارة</h3>
+                    <p>الدخول للوحة التحكم والموظفين</p>
+                </div>
+
+                <!-- بوابة الإجازة الاعتيادية -->
+                <div class="portal-card" onclick="showSection('leave')">
+                    <div class="portal-icon"><i class="fa-solid fa-file-contract"></i></div>
+                    <h3>إجازة اعتيادية</h3>
+                    <p>طباعة نموذج إجازة يومية</p>
+                </div>
+
+                <!-- بوابة الإجازة الزمنية -->
+                <div class="portal-card" onclick="showSection('time-leave')">
+                    <div class="portal-icon"><i class="fa-solid fa-clock"></i></div>
+                    <h3>إجازة زمنية</h3>
+                    <p>طباعة نموذج إجازة ساعية</p>
+                </div>
+
+                <!-- بوابة الموظفين -->
+                <div class="portal-card" onclick="showSection('employee-login')">
+                    <div class="portal-icon"><i class="fa-solid fa-users-gear"></i></div>
+                    <h3>بوابة الموظفين</h3>
+                    <p>دخول الموظفين لمتابعة المهام</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- تسجيل دخول الموظفين -->
+        <section id="section-employee-login" class="section hidden-section fade-in" style="display: none;">
+            <div class="nav-back-container" style="text-align: center; margin-bottom: 20px;">
+                <button onclick="showSection('landing')" class="nav-btn"><i class="fa-solid fa-arrow-right"></i> رجوع
+                    للبوابات</button>
+            </div>
+            <div class="glass-card login-card-center">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-user-tie"></i> دخول الموظفين</h3>
+                    <p>يرجى كتابة الاسم وكلمة المرور</p>
+                </div>
+                <form id="employee-login-form">
+                    <div class="form-group">
+                        <label for="empLoginUser">اسم الموظف</label>
+                        <select id="empLoginUser" required
+                            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: rgba(255,255,255,0.9); direction: rtl;">
+                            <option value="" disabled selected>-- جاري التحميل... --</option>
+                        </select>
+                    </div>
+                    <div class="form-group password-group">
+                        <label>كلمة المرور</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="empLoginPass" required>
+                            <i class="fa-solid fa-eye" onclick="togglePass('empLoginPass')"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">دخول</button>
+                </form>
+                <div style="text-align: center; margin-top: 10px;">
+                    <button type="button" class="refresh-btn-mini" onclick="refreshData(this)"
+                        style="background: transparent; color: var(--primary-color); border: 1px solid rgba(0,0,0,0.1); padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                        <i class="fa-solid fa-arrows-rotate"></i> تحديث القائمة
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- لوحة تحكم الموظف -->
+        <section id="section-employee" class="section hidden-section fade-in" style="display: none;">
+            <div class="glass-card" style="max-width: 900px;">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-briefcase"></i> لوحة الموظف</h3>
+                    <p id="emp-welcome-msg">مرحباً بك</p>
+                    <button onclick="logoutEmployee()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i>
+                        خروج</button>
+                </div>
+
+                <div style="text-align: center; margin-top: 10px;">
+                    <button type="button" class="refresh-btn-mini" onclick="refreshData(this)"
+                        style="background: transparent; color: var(--primary-color); border: 1px solid rgba(0,0,0,0.1); cursor: pointer;">
+                        <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                    </button>
+                </div>
+
+                <!-- تبويبات الموظف -->
+                <div class="sub-nav">
+                    <button class="nav-btn active" style="font-size: 0.9rem;"
+                        onclick="showEmpTab('tasks', this)">مهامي</button>
+                    <button class="nav-btn" style="font-size: 0.9rem;" onclick="showEmpTab('profile', this)">الإعدادات /
+                        الملف
+                        الشخصي</button>
+                </div>
+
+                <!-- تبويب المهام (يظهر تلقائياً) -->
+                <div id="emp-tab-tasks" class="tab-content" style="margin-top: 20px; display: block;">
+                    <h4><i class="fa-solid fa-list-check"></i> الأوردرات الحالية</h4>
+                    <div id="my-tasks-grid" class="tasks-grid">
+                        <!-- تظهر المهام هنا -->
+                    </div>
+                </div>
+
+                <!-- تبويب تحديث كلمة المرور والملف الشخصي -->
+                <div id="emp-tab-profile" class="tab-content" style="display: none; margin-top: 20px;">
+                    <div class="glass-card">
+                        <!-- عرض بيانات الموظف ReadOnly -->
+                        <div id="my-profile-display"
+                            style="text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #eee; padding-bottom: 20px;">
+                            <img id="profile-img-display" src=""
+                                style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color);">
+                            <h3 id="profile-name-display" style="margin: 10px 0;"></h3>
+                            <p id="profile-spec-display" style="color: #7f8c8d;"></p>
+
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; text-align: right; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 10px;">
+                                <div><strong>اللقب:</strong> <span id="profile-title-display"></span></div>
+                                <div><strong>العمر:</strong> <span id="profile-age-display"></span></div>
+                                <div><strong>الهاتف:</strong> <span id="profile-phone-display"></span></div>
+                                <div><strong>العنوان:</strong> <span id="profile-address-display"></span></div>
+                                <div><strong>تاريخ الانضمام:</strong> <span id="profile-date-display"></span></div>
+                            </div>
+
+                            <button onclick="printMyProfile()" class="nav-btn" style="margin-top: 15px;">
+                                <i class="fa-solid fa-print"></i> طباعة ملفي
+                            </button>
+                        </div>
+
+                        <h3><i class="fa-solid fa-lock"></i> تغيير كلمة المرور</h3>
+                        <form id="change-password-form">
+                            <div class="form-group">
+                                <label>كلمة المرور الحالية</label>
+                                <input type="password" id="currentPass" required>
+                            </div>
+                            <div class="form-group">
+                                <label>كلمة المرور الجديدة</label>
+                                <input type="password" id="newPass" required>
+                            </div>
+                            <div class="form-group">
+                                <label>تأكيد كلمة المرور الجديدة</label>
+                                <input type="password" id="confirmNewPass" required>
+                            </div>
+                            <button type="submit" class="submit-btn" style="background-color: var(--accent-color);"><i
+                                    class="fa-solid fa-save"></i> حفظ كلمة المرور</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم طلب الإجازة (Leave Request) -->
+        <section id="section-leave" class="section hidden-section fade-in">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-file-signature"></i> استمارة طلب إجازة اعتيادية</h3>
+                    <p>املأ البيانات لطباعة الطلب</p>
+                </div>
+                <form id="leave-form">
+                    <div class="form-group">
+                        <label for="leaveName">اسم الموظف</label>
+                        <select id="leaveName" required
+                            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: rgba(255,255,255,0.9); direction: rtl; margin-bottom: 10px;">
+                            <option value="" disabled selected>-- اختر الموظف --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="leaveDays">مدة الإجازة (بالأيام)</label>
+                        <input type="number" id="leaveDays" min="1" required placeholder="عدد الأيام">
+                    </div>
+                    <div class="form-group">
+                        <label for="leaveDate">تاريخ الإجازة</label>
+                        <input type="date" id="leaveDate" required>
+                    </div>
+
+                    <button type="button" class="nav-btn" style="background:#7f8c8d; width:100%; margin-bottom:10px;"
+                        onclick="showSection('landing')">
+                        <i class="fa-solid fa-arrow-right"></i> القائمة الرئيسية
+                    </button>
+
+                    <button type="submit" class="submit-btn" style="background-color: var(--success-color);">
+                        <i class="fa-solid fa-print"></i> طباعة الطلب
+                    </button>
+                    <button type="button" class="refresh-btn-mini" onclick="refreshData(this)"
+                        title="تحديث قائمة الموظفين"
+                        style="margin-top: 10px; width: 100%; background: transparent; color: #7f8c8d; border: 1px dashed #bdc3c7; cursor: pointer; padding: 5px; border-radius: 5px;">
+                        <i class="fa-solid fa-arrows-rotate"></i> تحديث الأسماء
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- قسم طلب الإجازة الزمنية (Legacy Restored) -->
+        <section id="section-time-leave" class="section hidden-section fade-in">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> استمارة إجازة زمنية</h3>
+                    <p>إجازة ساعية خلال الدوام الرسمي</p>
+                </div>
+                <!-- ID MUST MATCH SCRIPT LISTENER -->
+                <form id="time-leave-form">
+                    <div class="form-group">
+                        <label for="timeLeaveName">اسم الموظف</label>
+                        <select id="timeLeaveName" required
+                            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: rgba(255,255,255,0.9); direction: rtl;">
+                            <option value="" disabled selected>-- اختر الموظف --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeLeaveDate">تاريخ الإجازة</label>
+                        <input type="date" id="timeLeaveDate" required>
+                    </div>
+                    <div class="form-group" style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label for="timeFrom">من الساعة</label>
+                            <input type="time" id="timeFrom" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="timeTo">إلى الساعة</label>
+                            <input type="time" id="timeTo" required>
+                        </div>
+                    </div>
+
+                    <button type="button" class="nav-btn" style="background:#7f8c8d; width:100%; margin-bottom:10px;"
+                        onclick="showSection('landing')">
+                        <i class="fa-solid fa-arrow-right"></i> القائمة الرئيسية
+                    </button>
+
+                    <button type="submit" class="submit-btn" style="background-color: var(--accent-color);">
+                        <i class="fa-solid fa-print"></i> طباعة الطلب
+                    </button>
+                    <button type="button" class="refresh-btn-mini" onclick="refreshData(this)"
+                        title="تحديث قائمة الموظفين"
+                        style="margin-top: 10px; width: 100%; background: transparent; color: #7f8c8d; border: 1px dashed #bdc3c7; cursor: pointer; padding: 5px; border-radius: 5px;">
+                        <i class="fa-solid fa-arrows-rotate"></i> تحديث الأسماء
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- قسم المدير: عرض البيانات (افتراضي) -->
+        <section id="section-admin" class="section hidden-section fade-in" style="display: none;">
+            <!-- تسجيل الدخول للمدير (مخفي) -->
+            <div id="admin-login" class="glass-card" style="display: none;">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-lock"></i> دخول المدير</h3>
+                    <p>مجال خاص بالمشرفين فقط</p>
+                </div>
+                <div class="login-form">
+                    <div class="form-group password-group">
+                        <label for="adminPass">كلمة المرور</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="adminPass" placeholder="أدخل رمز المرور">
+                            <i class="fa-solid fa-eye" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+                        </div>
+                    </div>
+                    <button onclick="checkAdmin()" class="submit-btn secondary">دخول</button>
+                </div>
+            </div>
+
+            <!-- لوحة التحكم -->
+            <div id="admin-dashboard" style="display: block;">
+                <div class="dashboard-header">
+                    <h3>لوحة التحكم</h3>
+                    <button onclick="logoutAdmin()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i>
+                        خروج</button>
+                </div>
+
+                <div class="admin-tabs" id="admin-tabs-container"
+                    style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
+                    <button class="nav-btn active" onclick="showAdminTab('employees', this)">الموظفين</button>
+
+                    <button class="nav-btn" onclick="showAdminTab('incoming', this)">
+                        <i class="fa-solid fa-inbox"></i> المهام الواردة
+                    </button>
+
+                    <button class="nav-btn" onclick="showAdminTab('tasks', this)">
+                        <i class="fa-solid fa-paper-plane"></i> المهام المرسلة
+                    </button>
+
+                    <!-- UPDATED: Use showSection to open Legacy Sections -->
+                    <button class="nav-btn" onclick="showSection('leave')">
+                        <i class="fa-solid fa-file-contract"></i> طلب إجازة يومية
+                    </button>
+
+                    <button class="nav-btn" onclick="showSection('time-leave')">
+                        <i class="fa-solid fa-clock"></i> طلب إجازة زمنية
+                    </button>
+
+                    <button class="nav-btn" onclick="showAdminTab('add-employee', this)">إضافة موظف</button>
+
+                    <button class="nav-btn" onclick="showAdminTab('settings', this)">
+                        <i class="fa-solid fa-gear"></i> الإعدادات
+                    </button>
+                </div>
+
+                <!-- تبويب الموظفين -->
+                <div id="admin-tab-employees" class="admin-tab-content">
+                    <h3>سجل الموظفين</h3>
+                    <div id="employees-grid" class="employees-grid"></div>
+                    <button onclick="seedDatabase()"
+                        style="background: #95a5a6; color: white; padding: 10px; margin-top: 20px; border: none; border-radius: 5px; cursor: pointer;">
+                        <i class="fa-solid fa-database"></i> إضافة بيانات تجريبية (اضغط مرة واحدة)
+                    </button>
+                </div>
+
+                <!-- تبويب المهام الواردة -->
+                <div id="admin-tab-incoming" class="admin-tab-content" style="display: none;">
+                    <h3>المهام الواردة (الجديدة)</h3>
+                    <div id="incoming-tasks-grid" class="tasks-grid"></div>
+                </div>
+
+                <!-- تبويب إضافة موظف -->
+                <div id="admin-tab-add-employee" class="admin-tab-content" style="display: none;">
+                    <div class="glass-card">
+                        <h3>إضافة موظف جديد</h3>
+                        <form id="admin-add-emp-form">
+                            <div class="form-group-row" style="display: flex; gap: 10px;">
+                                <div style="flex:1;">
+                                    <label>الاسم الرباعي</label>
+                                    <input type="text" id="addFullName" required placeholder="الاسم الكامل">
+                                </div>
+                                <div style="flex:1;">
+                                    <label>اللقب (الصفة)</label>
+                                    <input type="text" id="addTitle" placeholder="مثال: المهندس">
+                                </div>
+                            </div>
+                            <div class="form-group-row" style="display: flex; gap: 10px;">
+                                <div style="flex:1;">
+                                    <label>رقم الهاتف</label>
+                                    <input type="tel" id="addPhone" placeholder="07xxxxxxxxx">
+                                </div>
+                                <div style="flex:1;">
+                                    <label>العنوان (السكن)</label>
+                                    <input type="text" id="addAddress" placeholder="المحافظة - الحي">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>رابط انستغرام</label>
+                                <input type="text" id="addInsta" placeholder="رابط أو يوزر الانستغرام">
+                            </div>
+                            <div class="form-group">
+                                <label>التخصص</label>
+                                <select id="addSpecialization" required>
+                                    <option value="" disabled selected>اختر التخصص...</option>
+                                    <option value="مسؤول شعبة الاعلام">مسؤول شعبة الاعلام</option>
+                                    <option value="مصمم جرافيك">مصمم جرافيك</option>
+                                    <option value="كاتب محتوى">كاتب محتوى</option>
+                                    <option value="مصور فوتوغرافي">مصور فوتوغرافي</option>
+                                    <option value="مونتير">مونتير</option>
+                                    <option value="إدارة محتوى">إدارة محتوى</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>العمر</label>
+                                <input type="number" id="addAge" required>
+                            </div>
+                            <div class="form-group">
+                                <label>الصورة الشخصية</label>
+                                <input type="file" id="addProfilePic" accept="image/*" required>
+                            </div>
+                            <button type="submit" class="submit-btn" style="background-color: var(--success-color);">حفظ
+                                وإضافة</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- تبويب المهام المرسلة -->
+                <div id="admin-tab-tasks" class="admin-tab-content" style="display: none;">
+                    <h3>المهام التي تم إرسالها</h3>
+                    <div class="glass-card">
+                        <h3><i class="fa-solid fa-plus-circle"></i> إسناد مهمة جديدة</h3>
+                        <form id="assign-task-form">
+                            <div class="form-group">
+                                <label>عنوان المهمة / الأوردر</label>
+                                <input type="text" id="taskTitle" required placeholder="مثال: تصميم بوستر ندوة...">
+                            </div>
+                            <div class="form-group">
+                                <label>الموظف المسؤول</label>
+                                <select id="taskAssignedTo" required>
+                                    <option value="" disabled selected>-- اختر الموظف --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ التسليم</label>
+                                <input type="date" id="taskDeadline" required>
+                            </div>
+                            <button type="submit" class="submit-btn">إرسال المهمة</button>
+                        </form>
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <h4>سجل المهام المرسلة</h4>
+                        <div id="all-tasks-grid" class="tasks-grid"></div>
+                    </div>
+                </div>
+
+                <!-- تبويب الإعدادات (الباسوورد) -->
+                <div id="admin-tab-settings" class="admin-tab-content" style="display: none;">
+                    <div class="glass-card">
+                        <h3>إعدادات المدير</h3>
+                        <p>تغيير كلمة مرور لوحة التحكم</p>
+                        <div class="form-group">
+                            <label>كلمة المرور الجديدة</label>
+                            <input type="password" id="newAdminPass">
+                        </div>
+                        <button onclick="changeAdminPass()" class="submit-btn"
+                            style="background-color: var(--primary-color);">حفظ التغييرات</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- تسجيل دخول الإدارة (Login Section) -->
+        <section id="section-login" class="section hidden-section fade-in" style="display: none;">
+            <div class="nav-back-container" style="text-align: center; margin-bottom: 20px;">
+                <button onclick="showSection('landing')" class="nav-btn"><i class="fa-solid fa-arrow-right"></i> القائمة
+                    الرئيسية</button>
+            </div>
+            <div class="glass-card login-card-center">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-user-shield"></i> دخول الإدارة</h3>
+                    <p>يرجى إدخال رمز المرور للمتابعة</p>
+                </div>
+                <form id="admin-access-form">
+                    <div class="form-group password-group">
+                        <label>رمز المرور</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="accessPass" required placeholder="********">
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">دخول</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>جميع الحقوق محفوظة © 2026 كلية الأمل للعلوم الطبية التخصصية - شعبة الإعلام</p>
+    </footer>
+
+    <!-- نافذة تعديل الموظف (Modal) -->
+    <div id="edit-employee-modal" class="modal" style="display: none;">
+        <div class="modal-content glass-card">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h3><i class="fa-solid fa-pen-to-square"></i> تعديل بيانات الموظف</h3>
+            <form id="edit-emp-form">
+                <input type="hidden" id="editEmpId">
+                <div class="form-group-row" style="display: flex; gap: 10px;">
+                    <div style="flex:1;">
+                        <label>الاسم الرباعي</label>
+                        <input type="text" id="editFullName" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label>اللقب</label>
+                        <input type="text" id="editTitle">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>التخصص</label>
+                    <select id="editSpecialization" required>
+                        <option value="مسؤول شعبة الاعلام">مسؤول شعبة الاعلام</option>
+                        <option value="مصمم جرافيك">مصمم جرافيك</option>
+                        <option value="كاتب محتوى">كاتب محتوى</option>
+                        <option value="مصور فوتوغرافي">مصور فوتوغرافي</option>
+                        <option value="مونتير">مونتير</option>
+                        <option value="إدارة محتوى">إدارة محتوى</option>
+                    </select>
+                </div>
+
+                <div class="form-group-row" style="display: flex; gap: 10px;">
+                    <div style="flex:1;">
+                        <label>العمر</label>
+                        <input type="number" id="editAge" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="editPhone">
+                    </div>
+                </div>
+
+                <div class="form-group-row" style="display: flex; gap: 10px;">
+                    <div style="flex:1;">
+                        <label>العنوان</label>
+                        <input type="text" id="editAddress">
+                    </div>
+                    <div style="flex:1;">
+                        <label>انستغرام</label>
+                        <input type="text" id="editInsta">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>تحديث الصورة (اختياري)</label>
+                    <input type="file" id="editProfilePic" accept="image/*">
+                </div>
+
+                <div class="form-group" style="background: #fff3cd; padding: 10px; border-radius: 8px;">
+                    <label style="color: #856404;">تعيين كلمة مرور جديدة (للمدير فقط)</label>
+                    <input type="text" id="editNewPass" placeholder="اتركه فارغاً إذا لم ترد التغيير">
+                </div>
+
+                <button type="submit" class="submit-btn" style="background-color: var(--primary-color);">حفظ
+                    التعديلات</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة بطاقة الموظف (QR Modal) -->
+    <div id="qr-card-modal" class="modal" style="display: none;">
+        <div class="modal-content glass-card" style="text-align: center; max-width: 400px;">
+            <span class="close-modal" onclick="closeQRModal()">&times;</span>
+            <div id="printable-card-area"
+                style="background: white; color: black; padding: 20px; border-radius: 10px; position: relative; overflow: hidden;">
+                <!-- Card Design -->
+                <div
+                    style="position: absolute; top:0; left:0; width:100%; height:8px; background: linear-gradient(90deg, #3498db, #2cd3e1);">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="text-align: right;">
+                        <h4 style="margin: 0; font-size: 14px;">كلية الأمل للعلوم الطبية</h4>
+                        <p style="margin: 0; font-size: 10px; color: #7f8c8d;">شعبة الإعلام</p>
+                    </div>
+                    <img src="logo.png" alt="Logo" style="width: 40px;">
+                </div>
+
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <img id="qr-emp-img" src=""
+                        style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #3498db; padding: 2px;">
+                    <h2 id="qr-emp-name"
+                        style="margin: 10px 0 5px 0; font-size: 20px; font-weight: bold; color: #2c3e50;"></h2>
+                    <p id="qr-emp-spec"
+                        style="margin: 0; font-size: 14px; color: #34495e; background: #ecf0f1; display: inline-block; padding: 5px 15px; border-radius: 15px;">
+                    </p>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <div style="text-align: right; font-size: 12px; line-height: 2;">
+                        <div><strong>اللقب:</strong> <span id="qr-emp-title">-</span></div>
+                        <div><strong>الهاتف:</strong> <span id="qr-emp-phone">-</span></div>
+                        <div><strong>العنوان:</strong> <span id="qr-emp-address">-</span></div>
+                    </div>
+                    <div id="qr-code-container" style="background: white; padding: 5px; border-radius: 5px;"></div>
+                </div>
+
+                <div style="margin-top: 15px; font-size: 10px; color: #bdc3c7;">
+                    ID: <span id="qr-emp-id"></span>
+                </div>
+            </div>
+            <button onclick="printCard()" class="submit-btn" style="margin-top: 15px; background: #34495e;"><i
+                    class="fa-solid fa-print"></i> طباعة البطاقة</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Firebase Scripts Removed -->
+    <script src="script.js"></script>
+    <script>
+        // Modal Helpers
+        function closeEditModal() { document.getElementById('edit-employee-modal').style.display = 'none'; }
+        function closeQRModal() { document.getElementById('qr-card-modal').style.display = 'none'; }
+        function printCard() {
+            const content = document.getElementById('printable-card-area').innerHTML;
+            const win = window.open('', '', 'height=600,width=400');
+            win.document.write('<html><head><title>بطاقة موظف</title><style>body { font-family: sans-serif; text-align: center; direction: rtl; }</style></head><body>');
+            win.document.write(content);
+            win.document.write('</body></html>');
+            win.document.close();
+            win.print();
+        }
+    </script>
+</body>
+
+</html>
