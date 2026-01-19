@@ -457,187 +457,282 @@ function renderMyTasks() {
 }
 
 window.completeTask = function (id) {
-    if (confirm('هل أتممت المهمة؟')) {
-        updateTaskStatus(id, 'completed');
+
+    // --- Helper: Get Logo as Base64 (Optional/Fallback) or use direct link ---
+    // For simplicity and speed on GitHub Pages, we will use the relative path 'logo.png'
+    // But to ensure it prints even if loose connection, we rely on browser cache.
+
+    function getPrintStyle() {
+        return `
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&display=swap');
+        @page { 
+            size: A4; 
+            margin: 0; 
+        }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            direction: rtl; 
+            margin: 0;
+            padding: 20px;
+            background: white;
+            height: 100vh;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+        }
+        .page-frame {
+            border: 4px double #3498db; /* Light Blue Official Border */
+            height: 96%; /* Leave room for paper margin */
+            padding: 40px;
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header img {
+            width: 110px;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            margin: 5px 0;
+            font-size: 26px;
+            font-weight: 900;
+            color: #2c3e50;
+        }
+        .header h2 {
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #555;
+        }
+        .header .doc-title {
+            margin-top: 30px;
+            font-size: 24px;
+            text-decoration: underline;
+            text-underline-offset: 8px;
+            color: #000;
+        }
+        .content {
+            font-size: 20px;
+            line-height: 2.5;
+            text-align: right;
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+        .field {
+            border-bottom: 1px dotted #000;
+            padding: 0 15px;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 50px;
+        }
+        .sign-box {
+            text-align: center;
+            width: 250px;
+        }
+        .sign-box p {
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .sign-placeholder {
+            margin-top: 40px;
+            border-bottom: 1px dotted #000;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .meta-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #bdc3c7;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        /* Hide Browser Details */
+        @media print {
+            @page { margin: 0; }
+            body { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+    `;
     }
-};
 
+    window.printDailyLeave = function () {
+        const name = document.getElementById('leaveName').value;
+        const days = document.getElementById('leaveDays').value;
+        const date = document.getElementById('leaveDate').value;
+        const reason = document.getElementById('leaveReason').value;
 
-window.printDailyLeave = function () {
-    const name = document.getElementById('leaveName').value;
-    const days = document.getElementById('leaveDays').value;
-    const reason = document.getElementById('leaveReason').value;
-    const date = new Date().toLocaleDateString('ar-IQ'); // Dynamic Date
-    const time = new Date().toLocaleTimeString('ar-IQ'); // Dynamic Time
+        if (!name || !days || !date || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
-    if (!name || !days) { alert('يرجى ملء كافة الحقول'); return; }
+        const formattedDate = new Date(date).toLocaleDateString('ar-IQ');
 
-    const win = window.open('', '', 'height=800,width=800');
-    win.document.write(`
+        const win = window.open('', '', 'height=900,width=800');
+        win.document.write(`
         <html>
-        <head>
-            <title>نموذج إجازة اعتيادية</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-                body { font-family: 'Cairo', sans-serif; direction: rtl; padding: 40px; border: 5px double #333; margin: 20px; }
-                .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-                .header img { width: 100px; margin-bottom: 10px; }
-                .header h2 { margin: 5px 0; font-size: 24px; }
-                .header h3 { margin: 5px 0; font-size: 18px; color: #555; }
-                .content { font-size: 18px; line-height: 2; text-align: right; margin-top: 40px; }
-                .field { border-bottom: 1px dotted #000; padding: 0 10px; display: inline-block; min-width: 150px; text-align: center; font-weight: bold; }
-                .footer { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; }
-                .meta { margin-top: 50px; font-size: 14px; color: #777; border-top: 1px solid #ddd; padding-top: 10px; }
-            </style>
-        </head>
+        <head><title>طلب إجازة اعتيادية</title>${getPrintStyle()}</head>
         <body>
-            <div class="header">
-                <!-- Placeholder for Logo if needed, user can add <img src="logo.png"> -->
-                <h2>كلية الأمل للعلوم الطبية التخصصية</h2>
-                <h3>نظام إدارة الموظفين - شعبة الإعلام</h3>
-                <h2 style="margin-top: 20px; text-decoration: underline;">طلب إجازة اعتيادية</h2>
-            </div>
-            
-            <div class="content">
-                <p>السيد رئيس القسم المحترم / مسؤول الشعبة.. </p>
-                <p>يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة <span class="field">${days}</span> يوم/أيام.</p>
-                <p>السبب: <span class="field">${reason}</span>.</p>
-                <p>وذلك اعتباراً من تاريخ: <span class="field">${date}</span>.</p>
-                <br>
-                <p>مقدم الطلب: <span class="field">${name}</span></p>
-            </div>
-
-            <div class="footer">
-                <div>
-                    <p>التوقيع:</p>
-                    <br>
-                    <p>.......................</p>
+            <div class="page-frame">
+                <div class="header">
+                    <img src="logo.png" alt="Logo">
+                    <h1>كلية الأمل للعلوم الطبية التخصصية</h1>
+                    <h2>قسم الموارد البشرية - شعبة الإعلام</h2>
+                    <div class="doc-title">طلب إجازة اعتيادية</div>
                 </div>
-                <div>
-                    <p>مصادقة المسؤول المباشر:</p>
+                
+                <div class="content">
+                    <p>السيد رئيس القسم المحترم / مسؤول الشعبة..</p>
+                    <p>يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة <span class="field">${days}</span> يوم/أيام.</p>
+                    <p>وذلك اعتباراً من تاريخ: <span class="field">${formattedDate}</span>.</p>
+                    <p>السبب: <span class="field">${reason}</span>.</p>
                     <br>
-                    <p>.......................</p>
+                    <p>مع التقدير..</p>
                 </div>
-            </div>
 
-            <div class="meta">
-                طبعت بواسطة النظام الإلكتروني في: ${date} - ${time}
+                <div class="footer">
+                    <div class="sign-box">
+                        <p>توقيع الموظف</p>
+                        <p>${name}</p>
+                        <div class="sign-placeholder"></div>
+                    </div>
+                    <div class="sign-box">
+                        <p>مصادقة مسؤول الشعبة</p>
+                        <p>م.م علي حسين عبد</p>
+                        <div class="sign-placeholder"></div>
+                    </div>
+                </div>
+
+                <div class="meta-footer">
+                    نسخة محفوظة إلكترونياً - ${new Date().toLocaleDateString('en-GB')}
+                </div>
             </div>
         </body>
         </html>
     `);
-    win.document.close();
-    setTimeout(() => win.print(), 500);
-};
-
-window.printTimeLeave = function () {
-    const name = document.getElementById('timeLeaveName').value;
-    const tFrom = document.getElementById('timeFrom').value;
-    const tTo = document.getElementById('timeTo').value;
-    const reason = document.getElementById('timeLeaveReason').value;
-    const date = new Date().toLocaleDateString('ar-IQ'); // Dynamic Date
-    const time = new Date().toLocaleTimeString('ar-IQ'); // Dynamic Time
-
-    if (!name || !tFrom || !tTo) { alert('يرجى ملء كافة الحقول'); return; }
-
-    // Format 12H time for display
-    const formatTime = (t) => {
-        let [h, m] = t.split(':');
-        let ampm = h >= 12 ? 'م' : 'ص';
-        h = h % 12 || 12;
-        return `${h}:${m} ${ampm}`;
+        win.document.close();
+        // Allow image to load
+        win.onload = function () { setTimeout(() => win.print(), 500); };
     };
 
-    const period = `من الساعة (${formatTime(tFrom)}) إلى الساعة (${formatTime(tTo)})`;
+    window.printTimeLeave = function () {
+        const name = document.getElementById('timeLeaveName').value;
+        const tFrom = document.getElementById('timeFrom').value;
+        const tTo = document.getElementById('timeTo').value;
+        const dateInput = document.getElementById('timeLeaveDate').value; // Read from input
+        const reason = document.getElementById('timeLeaveReason').value;
 
-    const win = window.open('', '', 'height=800,width=800');
-    win.document.write(`
+        if (!name || !tFrom || !tTo || !reason) { alert('يرجى ملء كافة الحقول'); return; }
+
+        const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('ar-IQ') : new Date().toLocaleDateString('ar-IQ');
+
+        const formatTime = (t) => {
+            let [h, m] = t.split(':');
+            let ampm = h >= 12 ? 'م' : 'ص';
+            h = h % 12 || 12;
+            return `${h}:${m} ${ampm}`;
+        };
+
+        const win = window.open('', '', 'height=900,width=800');
+        win.document.write(`
         <html>
-        <head>
-            <title>نموذج إجازة زمنية</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-                body { font-family: 'Cairo', sans-serif; direction: rtl; padding: 40px; border: 5px double #333; margin: 20px; }
-                .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-                .header h2 { margin: 5px 0; font-size: 24px; }
-                .header h3 { margin: 5px 0; font-size: 18px; color: #555; }
-                .content { font-size: 18px; line-height: 2; text-align: right; margin-top: 40px; }
-                .field { border-bottom: 1px dotted #000; padding: 0 10px; display: inline-block; min-width: 150px; text-align: center; font-weight: bold; }
-                .footer { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; }
-                .meta { margin-top: 50px; font-size: 14px; color: #777; border-top: 1px solid #ddd; padding-top: 10px; }
-            </style>
-        </head>
+        <head><title>طلب إجازة زمنية</title>${getPrintStyle()}</head>
         <body>
-            <div class="header">
-                <h2>كلية الأمل للعلوم الطبية التخصصية</h2>
-                <h3>نظام إدارة الموظفين - شعبة الإعلام</h3>
-                <h2 style="margin-top: 20px; text-decoration: underline;">طلب إجازة زمنية</h2>
-            </div>
-            
-            <div class="content">
-                <p>السيد رئيس القسم المحترم..</p>
-                <p>يرجى التفضل بالموافقة على منحي إجازة زمنية <span class="field">${period}</span>.</p>
-                <p>السبب: <span class="field">${reason}</span>.</p>
-                <br>
-                <p>مقدم الطلب: <span class="field">${name}</span></p>
-                <p>بتاريخ: <span class="field">${date}</span> - الوقت: <span class="field">${time}</span></p>
-            </div>
+            <div class="page-frame">
+                <div class="header">
+                    <img src="logo.png" alt="Logo">
+                    <h1>كلية الأمل للعلوم الطبية التخصصية</h1>
+                    <h2>قسم الموارد البشرية - شعبة الإعلام</h2>
+                    <div class="doc-title">طلب إجازة زمنية</div>
+                </div>
+                
+                <div class="content">
+                    <p>السيد رئيس القسم المحترم / مسؤول الشعبة..</p>
+                    <p>يرجى التفضل بالموافقة على منحي إجازة زمنية (ساعية) لغرض: <span class="field">${reason}</span>.</p>
+                    <p>وذلك يوم: <span class="field">${formattedDate}</span>.</p>
+                    <p>من الساعة: <span class="field">${formatTime(tFrom)}</span> إلى الساعة: <span class="field">${formatTime(tTo)}</span>.</p>
+                    <br>
+                    <p>مع التقدير..</p>
+                </div>
 
-            <div class="footer">
-                <div>
-                    <p>التوقيع:</p>
-                    <br>
-                    <p>.......................</p>
+                <div class="footer">
+                    <div class="sign-box">
+                        <p>توقيع الموظف</p>
+                        <p>${name}</p>
+                        <div class="sign-placeholder"></div>
+                    </div>
+                    <div class="sign-box">
+                        <p>مصادقة مسؤول الشعبة</p>
+                        <p>م.م علي حسين عبد</p>
+                        <div class="sign-placeholder"></div>
+                    </div>
                 </div>
-                <div>
-                    <p>مصادقة المسؤول المباشر:</p>
-                    <br>
-                    <p>.......................</p>
+
+                <div class="meta-footer">
+                   نسخة محفوظة إلكترونياً - ${new Date().toLocaleDateString('en-GB')}
                 </div>
-            </div>
-             <div class="meta">
-                طبعت بواسطة النظام الإلكتروني في: ${date} - ${time}
             </div>
         </body>
         </html>
     `);
-    win.document.close();
-    setTimeout(() => win.print(), 500);
-};
+        win.document.close();
+        win.onload = function () { setTimeout(() => win.print(), 500); };
+    };
+
+    // Auto-set Date to Today when opening forms
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        input.valueAsDate = new Date();
+    });
+
+    window.refreshData = function (btn) {
+        if (btn) btn.disabled = true;
+        fetchEmployees().then(() => fetchTasks()).finally(() => { if (btn) btn.disabled = false; alert('تم التحديث'); });
+    };
 
 
-window.refreshData = function (btn) {
-    if (btn) btn.disabled = true;
-    fetchEmployees().then(() => fetchTasks()).finally(() => { if (btn) btn.disabled = false; alert('تم التحديث'); });
-};
+    // Global Exposure
+    window.renderMyProfile = function () {
+        if (!currentUser) return;
+        document.getElementById('profile-name-display').innerText = currentUser.fullName;
+        document.getElementById('profile-img-display').src = currentUser.image || 'assets/user-placeholder.png';
+        // ... Fill other fields ...
+    };
 
-// Global Exposure
-window.renderMyProfile = function () {
-    if (!currentUser) return;
-    document.getElementById('profile-name-display').innerText = currentUser.fullName;
-    document.getElementById('profile-img-display').src = currentUser.image || 'assets/user-placeholder.png';
-    // ... Fill other fields ...
-};
+    // 9. Seeding Helper
+    window.seedDatabase = async function () {
+        if (!confirm('هل تريد إضافة بيانات تجريبية (محمد، سارة، علي)؟')) return;
 
-// 9. Seeding Helper
-window.seedDatabase = async function () {
-    if (!confirm('هل تريد إضافة بيانات تجريبية (محمد، سارة، علي)؟')) return;
+        // Tiny base64 placeholder for avatars
+        const DUMMY_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
-    // Tiny base64 placeholder for avatars
-    const DUMMY_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+        const dummyEmployees = [
+            { fullName: "محمد أحمد", specialization: "مصمم جرافيك", age: 25, title: "موظف", phone: "07700000001", address: "بغداد", instagram: "@mohammed", image: DUMMY_IMG },
+            { fullName: "سارة علي", specialization: "كاتب محتوى", age: 24, title: "موظفة", phone: "07700000002", address: "البصرة", instagram: "@sara", image: DUMMY_IMG },
+            { fullName: "علي حسين عبد", specialization: "مسؤول شعبة الاعلام", age: 30, title: "مدير", phone: "07800000000", address: "كربلاء", instagram: "@ali", image: DUMMY_IMG }
+        ];
 
-    const dummyEmployees = [
-        { fullName: "محمد أحمد", specialization: "مصمم جرافيك", age: 25, title: "موظف", phone: "07700000001", address: "بغداد", instagram: "@mohammed", image: DUMMY_IMG },
-        { fullName: "سارة علي", specialization: "كاتب محتوى", age: 24, title: "موظفة", phone: "07700000002", address: "البصرة", instagram: "@sara", image: DUMMY_IMG },
-        { fullName: "علي حسين عبد", specialization: "مسؤول شعبة الاعلام", age: 30, title: "مدير", phone: "07800000000", address: "كربلاء", instagram: "@ali", image: DUMMY_IMG }
-    ];
+        alert('⏳ جاري الإضافة... قد يستغرق دقيقة');
 
-    alert('⏳ جاري الإضافة... قد يستغرق دقيقة');
+        for (const emp of dummyEmployees) {
+            await callApi("addEmployee", emp, "POST");
+        }
 
-    for (const emp of dummyEmployees) {
-        await callApi("addEmployee", emp, "POST");
-    }
-
-    alert('✅ تم إضافة البيانات التجريبية! سيتم تحديث الصفحة.');
-    fetchEmployees();
-};
+        alert('✅ تم إضافة البيانات التجريبية! سيتم تحديث الصفحة.');
+        fetchEmployees();
+    };
