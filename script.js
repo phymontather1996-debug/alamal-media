@@ -462,41 +462,138 @@ window.completeTask = function (id) {
     }
 };
 
+
 window.printDailyLeave = function () {
     const name = document.getElementById('leaveName').value;
     const days = document.getElementById('leaveDays').value;
-    const date = document.getElementById('leaveDate').value;
-    // ... Copy legacy print logic or reuse if function was pure ... 
-    // Re-implementing concise print logic for safety as previous file might be overwritten
+    const reason = document.getElementById('leaveReason').value;
+    const date = new Date().toLocaleDateString('ar-IQ'); // Dynamic Date
+    const time = new Date().toLocaleTimeString('ar-IQ'); // Dynamic Time
 
-    const win = window.open('', '', 'height=600,width=800');
+    if (!name || !days) { alert('يرجى ملء كافة الحقول'); return; }
+
+    const win = window.open('', '', 'height=800,width=800');
     win.document.write(`
-        <html><head><title>Print</title><style>body{font-family:sans-serif;direction:rtl;text-align:center;padding:20px;}</style></head>
+        <html>
+        <head>
+            <title>نموذج إجازة اعتيادية</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+                body { font-family: 'Cairo', sans-serif; direction: rtl; padding: 40px; border: 5px double #333; margin: 20px; }
+                .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+                .header img { width: 100px; margin-bottom: 10px; }
+                .header h2 { margin: 5px 0; font-size: 24px; }
+                .header h3 { margin: 5px 0; font-size: 18px; color: #555; }
+                .content { font-size: 18px; line-height: 2; text-align: right; margin-top: 40px; }
+                .field { border-bottom: 1px dotted #000; padding: 0 10px; display: inline-block; min-width: 150px; text-align: center; font-weight: bold; }
+                .footer { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; }
+                .meta { margin-top: 50px; font-size: 14px; color: #777; border-top: 1px solid #ddd; padding-top: 10px; }
+            </style>
+        </head>
         <body>
-            <h2>طلب إجازة اعتيادية</h2>
-            <p>أرجو التفضل بالموافقة على منحي إجازة لمدة <b>${days}</b> ايام</p>
-            <p>بتاريخ: ${date}</p>
-            <br>
-            <p>مقدم الطلب: ${name}</p>
-        </body></html>
+            <div class="header">
+                <!-- Placeholder for Logo if needed, user can add <img src="logo.png"> -->
+                <h2>كلية الأمل للعلوم الطبية التخصصية</h2>
+                <h3>نظام إدارة الموظفين - شعبة الإعلام</h3>
+                <h2 style="margin-top: 20px; text-decoration: underline;">طلب إجازة اعتيادية</h2>
+            </div>
+            
+            <div class="content">
+                <p>السيد رئيس القسم المحترم / مسؤول الشعبة.. </p>
+                <p>يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة <span class="field">${days}</span> يوم/أيام.</p>
+                <p>السبب: <span class="field">${reason}</span>.</p>
+                <p>وذلك اعتباراً من تاريخ: <span class="field">${date}</span>.</p>
+                <br>
+                <p>مقدم الطلب: <span class="field">${name}</span></p>
+            </div>
+
+            <div class="footer">
+                <div>
+                    <p>التوقيع:</p>
+                    <br>
+                    <p>.......................</p>
+                </div>
+                <div>
+                    <p>مصادقة المسؤول المباشر:</p>
+                    <br>
+                    <p>.......................</p>
+                </div>
+            </div>
+
+            <div class="meta">
+                طبعت بواسطة النظام الإلكتروني في: ${date} - ${time}
+            </div>
+        </body>
+        </html>
     `);
     win.document.close();
-    win.print();
+    setTimeout(() => win.print(), 500);
 };
+
 window.printTimeLeave = function () {
-    // ... Similar concise logic ...
     const name = document.getElementById('timeLeaveName').value;
-    const win = window.open('', '', 'height=600,width=800');
+    const hours = document.getElementById('timeLeaveHours').value;
+    const reason = document.getElementById('timeLeaveReason').value;
+    const date = new Date().toLocaleDateString('ar-IQ'); // Dynamic Date
+    const time = new Date().toLocaleTimeString('ar-IQ'); // Dynamic Time
+
+    if (!name || !hours) { alert('يرجى ملء كافة الحقول'); return; }
+
+    const win = window.open('', '', 'height=800,width=800');
     win.document.write(`
-        <html><head><title>Print</title><style>body{font-family:sans-serif;direction:rtl;text-align:center;padding:20px;}</style></head>
+        <html>
+        <head>
+            <title>نموذج إجازة زمنية</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+                body { font-family: 'Cairo', sans-serif; direction: rtl; padding: 40px; border: 5px double #333; margin: 20px; }
+                .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+                .header h2 { margin: 5px 0; font-size: 24px; }
+                .header h3 { margin: 5px 0; font-size: 18px; color: #555; }
+                .content { font-size: 18px; line-height: 2; text-align: right; margin-top: 40px; }
+                .field { border-bottom: 1px dotted #000; padding: 0 10px; display: inline-block; min-width: 150px; text-align: center; font-weight: bold; }
+                .footer { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; }
+                .meta { margin-top: 50px; font-size: 14px; color: #777; border-top: 1px solid #ddd; padding-top: 10px; }
+            </style>
+        </head>
         <body>
-            <h2>طلب إجازة زمنية</h2>
-            <p>مقدم الطلب: ${name}</p>
-        </body></html>
+            <div class="header">
+                <h2>كلية الأمل للعلوم الطبية التخصصية</h2>
+                <h3>نظام إدارة الموظفين - شعبة الإعلام</h3>
+                <h2 style="margin-top: 20px; text-decoration: underline;">طلب إجازة زمنية</h2>
+            </div>
+            
+            <div class="content">
+                <p>السيد رئيس القسم المحترم..</p>
+                <p>يرجى التفضل بالموافقة على منحي إجازة زمنية لمدة <span class="field">${hours}</span> ساعة/ساعات.</p>
+                <p>السبب: <span class="field">${reason}</span>.</p>
+                <br>
+                <p>مقدم الطلب: <span class="field">${name}</span></p>
+                <p>بتاريخ: <span class="field">${date}</span> - الوقت: <span class="field">${time}</span></p>
+            </div>
+
+            <div class="footer">
+                <div>
+                    <p>التوقيع:</p>
+                    <br>
+                    <p>.......................</p>
+                </div>
+                <div>
+                    <p>مصادقة المسؤول المباشر:</p>
+                    <br>
+                    <p>.......................</p>
+                </div>
+            </div>
+             <div class="meta">
+                طبعت بواسطة النظام الإلكتروني في: ${date} - ${time}
+            </div>
+        </body>
+        </html>
     `);
     win.document.close();
-    win.print();
+    setTimeout(() => win.print(), 500);
 };
+
 
 window.refreshData = function (btn) {
     if (btn) btn.disabled = true;
