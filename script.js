@@ -34,6 +34,11 @@ window.showSection = function (sectionId) {
             renderMyTasks();
         }
 
+        // Auto-fill Dates/Times
+        if (sectionId === 'leave' || sectionId === 'time-leave') {
+            if (typeof setFormDefaults === 'function') setFormDefaults();
+        }
+
         // Auto-refresh data if empty
         if (['leave', 'time-leave', 'employee-login', 'admin'].includes(sectionId)) {
             if (employees.length === 0) fetchEmployees();
@@ -677,6 +682,25 @@ window.printDailyLeave = function () {
     };
     const formattedTime = formatTimeVal(time);
 
+    // Helper to convert number to Arabic text (simple version for common leave days)
+    const numberToArabic = (n) => {
+        const num = parseInt(n);
+        if (num === 1) return "يوم واحد";
+        if (num === 2) return "يومين";
+        if (num === 3) return "ثلاثة أيام";
+        if (num === 4) return "أربعة أيام";
+        if (num === 5) return "خمسة أيام";
+        if (num === 6) return "ستة أيام";
+        if (num === 7) return "سبعة أيام";
+        if (num === 8) return "ثمانية أيام";
+        if (num === 9) return "تسعة أيام";
+        if (num === 10) return "عشرة أيام";
+        if (num > 10) return num + " يوماً";
+        return "يوم واحد";
+    };
+
+    const daysText = numberToArabic(days);
+
     const win = window.open('', '', 'height=900,width=800');
     win.document.write(`
         <html>
@@ -709,7 +733,7 @@ window.printDailyLeave = function () {
                         <div class="subject-line">م/ طلب اجازة</div>
 
                         <div class="main-text">
-                            يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة (<span class="field-highlight">${days}</span>) يوم واحد فقط، وذلك لـ: <span class="field-highlight">${reason}</span>.
+                            يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة (<span class="field-highlight">${days}</span>) <span class="field-highlight">${daysText}</span> فقط، وذلك لـ: <span class="field-highlight">${reason}</span>.
                         </div>
 
                         <div class="closing">
@@ -850,26 +874,8 @@ function setFormDefaults() {
 // Call defaults on load and whenever sections change (if needed)
 document.addEventListener('DOMContentLoaded', setFormDefaults);
 // Also hook into showSection if possible, but for now DOMContentLoaded covers reload.
-// If using single page app nav, we should call this in showSection.
-const originalShowSection = window.showSection; // Assuming showSection exists globally (it does in previous context context)
-if (typeof window.showSection === 'function') {
-    window.showSection = function (sectionId) {
-        // Call original
-        // access original function body or just redefine logic? 
-        // Simplest is to just re-run defaults when buttons are clicked.
-        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden-section'));
-        const target = document.getElementById('section-' + sectionId);
-        if (target) {
-            target.classList.remove('hidden-section');
-            if (sectionId === 'leave' || sectionId === 'time-leave') {
-                setFormDefaults();
-            }
-        }
-    };
-} else {
-    // If showSection isn't defined yet or accessible, just use interval or click listeners
-    document.addEventListener('click', () => setTimeout(setFormDefaults, 100));
-}
+// showSection is updated above to call this.
+
 
 window.refreshData = function (btn) {
     if (btn) btn.disabled = true;
