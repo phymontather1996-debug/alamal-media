@@ -463,6 +463,7 @@ window.completeTask = function (id) {
 };
 
 
+
 // --- Helper: Official Layout Style ---
 function getOfficialPrintStyle() {
     return `
@@ -480,8 +481,8 @@ function getOfficialPrintStyle() {
             -webkit-print-color-adjust: exact;
         }
         .outer-border {
-            border: 3px double #4b2c73; /* Purple-ish dark blue from image */
-            height: 96%; /* Leave margin for printer */
+            border: 3px double #4b2c73; /* Purple-ish dark blue */
+            height: 96%;
             padding: 10px;
             position: relative;
             box-sizing: border-box;
@@ -510,20 +511,28 @@ function getOfficialPrintStyle() {
         .header-grid {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             border-bottom: 2px solid #4b2c73;
             padding-bottom: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 40px; /* Increased margin since date is here now */
             position: relative;
             z-index: 2;
         }
-        .header-right, .header-left {
+        .header-right {
             text-align: center;
             font-weight: bold;
             font-size: 14px;
             color: #000;
             line-height: 1.6;
-            width: 200px;
+            width: 250px;
+        }
+        .header-left {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            line-height: 1.6;
+            width: 250px;
         }
         .header-center {
             text-align: center;
@@ -531,16 +540,10 @@ function getOfficialPrintStyle() {
         .header-center img {
             width: 90px;
         }
-        
-        /* Sub-Header ID/Date */
-        .sub-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
+        .date-line {
+            color: #3498db;
+            margin-top: 10px;
             font-weight: bold;
-            color: #3498db; /* Blue for Date/Number as in image */
-            font-size: 14px;
-            margin-bottom: 40px;
         }
 
         /* Body Content */
@@ -591,12 +594,15 @@ function getOfficialPrintStyle() {
             text-align: center;
             font-weight: bold;
             font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Close spacing */
         }
-        .sig-role {
-            margin-top: 5px;
+        .sig-title {
+            margin-bottom: 5px;
         }
         .sig-name {
-            margin-top: 50px; /* Space for signature */
+            font-weight: 800;
         }
 
         .english-footer {
@@ -610,7 +616,6 @@ function getOfficialPrintStyle() {
         }
         
         .field-highlight {
-            color: #c0392b; /* Reddish for inserted text if desired, or black */
             color: black;
             font-weight: bold;
         }
@@ -626,7 +631,7 @@ window.printDailyLeave = function () {
 
     if (!name || !days || !date || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
-    const formattedDate = new Date(date).toLocaleDateString('en-GB'); // 17/1/2026 format
+    const formattedDate = new Date(date).toLocaleDateString('en-GB');
 
     const win = window.open('', '', 'height=900,width=800');
     win.document.write(`
@@ -648,14 +653,9 @@ window.printDailyLeave = function () {
                         </div>
                         <div class="header-left">
                             شعبة الاعلام<br>
-                            <br>
-                            مذكرة داخلية
+                            مذكرة داخلية<br>
+                            <div class="date-line">التاريخ: ${formattedDate}</div>
                         </div>
-                    </div>
-
-                    <div class="sub-header">
-                        <div>العدد: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
-                        <div>التاريخ: ${formattedDate}</div>
                     </div>
 
                     <div class="form-body">
@@ -675,14 +675,12 @@ window.printDailyLeave = function () {
 
                     <div class="signatures">
                         <div class="sig-block">
-                            <div>مقدم الطلب</div>
-                            <div class="sig-name">(${name})</div>
-                            <div class="sig-role">اسم الموظف المعني</div>
+                            <div class="sig-title">مقدم الطلب</div>
+                            <div class="sig-name">${name}</div>
                         </div>
                         <div class="sig-block">
-                            <div>م.م علي حسين عبد</div>
-                            <div class="sig-name"></div>
-                            <div class="sig-role">مسؤول شعبة الاعلام</div>
+                            <div class="sig-title">مسؤول شعبة الاعلام</div>
+                            <div class="sig-name">م.م علي حسين عبد</div>
                         </div>
                     </div>
 
@@ -736,14 +734,9 @@ window.printTimeLeave = function () {
                         </div>
                         <div class="header-left">
                             شعبة الاعلام<br>
-                            <br>
-                            مذكرة داخلية
+                            مذكرة داخلية<br>
+                            <div class="date-line">التاريخ: ${formattedDate}</div>
                         </div>
-                    </div>
-
-                    <div class="sub-header">
-                        <div>العدد: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
-                        <div>التاريخ: ${formattedDate}</div>
                     </div>
 
                     <div class="form-body">
@@ -762,15 +755,13 @@ window.printTimeLeave = function () {
                     </div>
 
                     <div class="signatures">
-                        <div class="sig-block">
-                            <div>مقدم الطلب</div>
-                            <div class="sig-name">(${name})</div>
-                            <div class="sig-role">اسم الموظف المعني</div>
+                         <div class="sig-block">
+                            <div class="sig-title">مقدم الطلب</div>
+                            <div class="sig-name">${name}</div>
                         </div>
                         <div class="sig-block">
-                            <div>م.م علي حسين عبد</div>
-                            <div class="sig-name"></div>
-                            <div class="sig-role">مسؤول شعبة الاعلام</div>
+                            <div class="sig-title">مسؤول شعبة الاعلام</div>
+                            <div class="sig-name">م.م علي حسين عبد</div>
                         </div>
                     </div>
 
