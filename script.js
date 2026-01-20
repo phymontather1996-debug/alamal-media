@@ -208,7 +208,7 @@ function renderEmployeesTable() {
         card.innerHTML = `
             <div style="display:flex; align-items:center; gap:15px; justify-content: space-between; width: 100%;">
                 <div style="display:flex; align-items:center; gap:15px;">
-                    <img src="${emp.image || 'assets/user-placeholder.png'}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
+                    <img src="${emp.image || 'assets/user-placeholder.png'}" onerror="this.onerror=null; this.src='assets/user-placeholder.png';" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
                     <div>
                         <h4>${emp.fullName}</h4>
                         <p style="color:#7f8c8d; font-size:0.9rem;">${emp.specialization}</p>
@@ -460,6 +460,26 @@ window.completeTask = function (id) {
     if (confirm('هل أتممت المهمة؟')) {
         updateTaskStatus(id, 'completed');
     }
+};
+
+// --- Admin Auth Logic ---
+window.checkAdmin = function () {
+    const pw = document.getElementById('adminPass').value;
+    if (pw === '199611' || pw === '123') {
+        document.getElementById('admin-login').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+        fetchEmployees(); // Load data
+    } else {
+        alert('رمز المرور خاطئ');
+    }
+};
+
+window.logoutAdmin = function () {
+    document.getElementById('admin-access-form')?.reset(); // If it existed
+    document.getElementById('adminPass').value = '';
+    document.getElementById('admin-dashboard').style.display = 'none';
+    document.getElementById('admin-login').style.display = 'block';
+    window.showSection('landing');
 };
 
 

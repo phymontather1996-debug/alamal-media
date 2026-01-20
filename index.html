@@ -56,7 +56,7 @@
         <section id="section-landing" class="section fade-in">
             <div class="portal-grid">
                 <!-- بوابة الإدارة -->
-                <div class="portal-card" onclick="showSection('login')">
+                <div class="portal-card" onclick="showSection('admin')">
                     <div class="portal-icon"><i class="fa-solid fa-user-shield"></i></div>
                     <h3>بوابة الإدارة</h3>
                     <p>الدخول للوحة التحكم والموظفين</p>
@@ -307,7 +307,7 @@
         <!-- قسم المدير: عرض البيانات (افتراضي) -->
         <section id="section-admin" class="section hidden-section fade-in" style="display: none;">
             <!-- تسجيل الدخول للمدير (مخفي) -->
-            <div id="admin-login" class="glass-card" style="display: none;">
+            <div id="admin-login" class="glass-card" style="display: block;">
                 <div class="card-header">
                     <h3><i class="fa-solid fa-lock"></i> دخول المدير</h3>
                     <p>مجال خاص بالمشرفين فقط</p>
@@ -325,7 +325,7 @@
             </div>
 
             <!-- لوحة التحكم -->
-            <div id="admin-dashboard" style="display: block;">
+            <div id="admin-dashboard" style="display: none;">
                 <div class="dashboard-header">
                     <h3>لوحة التحكم</h3>
                     <button onclick="logoutAdmin()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i>
