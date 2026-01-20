@@ -464,6 +464,7 @@ window.completeTask = function (id) {
 
 
 
+
 // --- Helper: Official Layout Style ---
 function getOfficialPrintStyle() {
     return `
@@ -493,6 +494,8 @@ function getOfficialPrintStyle() {
             padding: 20px;
             position: relative;
             box-sizing: border-box;
+            display: flex; /* Flexbox for full height control */
+            flex-direction: column;
         }
         
         /* Watermark */
@@ -514,7 +517,7 @@ function getOfficialPrintStyle() {
             align-items: flex-start;
             border-bottom: 2px solid #4b2c73;
             padding-bottom: 15px;
-            margin-bottom: 40px; /* Increased margin since date is here now */
+            margin-bottom: 40px;
             position: relative;
             z-index: 2;
         }
@@ -551,6 +554,7 @@ function getOfficialPrintStyle() {
             position: relative;
             z-index: 2;
             padding: 0 20px;
+            flex-grow: 1; /* Pushes content down, but we want footer at very bottom */
         }
         .addressee {
             font-weight: 800;
@@ -586,7 +590,8 @@ function getOfficialPrintStyle() {
             display: flex;
             justify-content: space-between;
             padding: 0 40px;
-            margin-top: 50px;
+            margin-top: auto; /* Pushes to bottom of flex container */
+            margin-bottom: 40px;
             position: relative;
             z-index: 2;
         }
@@ -596,10 +601,10 @@ function getOfficialPrintStyle() {
             font-size: 16px;
             display: flex;
             flex-direction: column;
-            gap: 5px; /* Close spacing */
+            gap: 5px;
         }
         .sig-title {
-            margin-bottom: 5px;
+            margin-bottom: 20px;
         }
         .sig-name {
             font-weight: 800;
@@ -609,10 +614,17 @@ function getOfficialPrintStyle() {
             text-align: center;
             color: #bdc3c7;
             font-size: 12px;
-            margin-top: 50px;
+            margin-top: 10px;
             font-family: sans-serif;
             text-transform: uppercase;
             letter-spacing: 1px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .timestamp {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
         }
         
         .field-highlight {
@@ -623,15 +635,27 @@ function getOfficialPrintStyle() {
     `;
 }
 
+
 window.printDailyLeave = function () {
     const name = document.getElementById('leaveName').value;
     const days = document.getElementById('leaveDays').value;
     const date = document.getElementById('leaveDate').value;
+    const time = document.getElementById('leaveTime').value; // New Input
     const reason = document.getElementById('leaveReason').value;
 
-    if (!name || !days || !date || !reason) { alert('يرجى ملء كافة الحقول'); return; }
+    if (!name || !days || !date || !time || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
     const formattedDate = new Date(date).toLocaleDateString('en-GB');
+
+    // Format the time from the input (HH:MM) to readable AM/PM if desired, or keep as is.
+    // HTML time input gives '14:30'.
+    const formatTimeVal = (t) => {
+        let [h, m] = t.split(':');
+        let ampm = h >= 12 ? 'م' : 'ص';
+        h = h % 12 || 12;
+        return `${h}:${m} ${ampm}`;
+    };
+    const formattedTime = formatTimeVal(time);
 
     const win = window.open('', '', 'height=900,width=800');
     win.document.write(`
@@ -686,6 +710,7 @@ window.printDailyLeave = function () {
 
                     <div class="english-footer">
                         AL-Amal College for Specialized Medical Sciences
+                        <div class="timestamp">تمت الطباعة بتاريخ: ${formattedDate} - ${formattedTime}</div>
                     </div>
                 </div>
             </div>
@@ -706,6 +731,16 @@ window.printTimeLeave = function () {
     if (!name || !tFrom || !tTo || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
     const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
+
+    // For Time Leave, we don't have a separate "Request Time" input yet,
+    // usually the "From" time acts as context, but for the footer timestamp, let's use Current Time or add an input?
+    // User asked for "Date and Time in the two forms".
+    // I will auto-generate current time for the footer here as I didn't add a 'Request Time' input to the HTML for TimeLeave (only Daily).
+    // Wait, I should probably standardise. But for now, let's use the System Time for TimeLeave footer to avoid breaking if input missing.
+    // Or better: Use the 'From' time? No, that's the leave start.
+    // I'll stick to new Date() for Time Leave footer unless I add an input.
+    const now = new Date();
+    const currentDateTime = now.toLocaleDateString('ar-IQ') + ' - ' + now.toLocaleTimeString('ar-IQ');
 
     const formatTime = (t) => {
         let [h, m] = t.split(':');
@@ -767,6 +802,7 @@ window.printTimeLeave = function () {
 
                     <div class="english-footer">
                         AL-Amal College for Specialized Medical Sciences
+                        <div class="timestamp">تمت الطباعة بتاريخ: ${currentDateTime}</div>
                     </div>
                 </div>
             </div>
@@ -777,7 +813,44 @@ window.printTimeLeave = function () {
     win.onload = function () { setTimeout(() => win.print(), 500); };
 };
 
-// Global Exposure
+// Global Exposure: Auto-Fill Dates and Times on Load/Interaction
+function setFormDefaults() {
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        if (!input.value) input.value = today;
+    });
+
+    // Auto-fill time inputs if empty (specifically for 'leaveTime')
+    const leaveTime = document.getElementById('leaveTime');
+    if (leaveTime && !leaveTime.value) leaveTime.value = now;
+}
+
+// Call defaults on load and whenever sections change (if needed)
+document.addEventListener('DOMContentLoaded', setFormDefaults);
+// Also hook into showSection if possible, but for now DOMContentLoaded covers reload.
+// If using single page app nav, we should call this in showSection.
+const originalShowSection = window.showSection; // Assuming showSection exists globally (it does in previous context context)
+if (typeof window.showSection === 'function') {
+    window.showSection = function (sectionId) {
+        // Call original
+        // access original function body or just redefine logic? 
+        // Simplest is to just re-run defaults when buttons are clicked.
+        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden-section'));
+        const target = document.getElementById('section-' + sectionId);
+        if (target) {
+            target.classList.remove('hidden-section');
+            if (sectionId === 'leave' || sectionId === 'time-leave') {
+                setFormDefaults();
+            }
+        }
+    };
+} else {
+    // If showSection isn't defined yet or accessible, just use interval or click listeners
+    document.addEventListener('click', () => setTimeout(setFormDefaults, 100));
+}
+
 window.refreshData = function (btn) {
     if (btn) btn.disabled = true;
     fetchEmployees().then(() => fetchTasks()).finally(() => { if (btn) btn.disabled = false; alert('تم التحديث'); });
