@@ -462,117 +462,157 @@ window.completeTask = function (id) {
     }
 };
 
-// --- Helper: Get Logo as Base64 (Optional/Fallback) or use direct link ---
-// For simplicity and speed on GitHub Pages, we will use the relative path 'logo.png'
-// But to ensure it prints even if loose connection, we rely on browser cache.
 
-function getPrintStyle() {
+// --- Helper: Official Layout Style ---
+function getOfficialPrintStyle() {
     return `
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&display=swap');
-        @page { 
-            size: A4; 
-            margin: 0; 
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap');
+        @page { size: A4; margin: 0; }
         body { 
             font-family: 'Cairo', sans-serif; 
-            direction: rtl; 
-            margin: 0;
-            padding: 20px;
-            background: white;
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
             height: 100vh;
-            box-sizing: border-box;
+            direction: rtl;
+            background: white;
             -webkit-print-color-adjust: exact;
         }
-        .page-frame {
-            border: 4px double #3498db; /* Light Blue Official Border */
-            height: 96%; /* Leave room for paper margin */
-            padding: 40px;
+        .outer-border {
+            border: 3px double #4b2c73; /* Purple-ish dark blue from image */
+            height: 96%; /* Leave margin for printer */
+            padding: 10px;
             position: relative;
             box-sizing: border-box;
+        }
+        .inner-border {
+            border: 1px solid #4b2c73;
+            height: 100%;
+            padding: 20px;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header Layout */
+        .header-grid {
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4b2c73;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
         }
-        .header {
+        .header-right, .header-left {
             text-align: center;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        .header img {
-            width: 110px;
-            margin-bottom: 15px;
-        }
-        .header h1 {
-            margin: 5px 0;
-            font-size: 26px;
-            font-weight: 900;
-            color: #2c3e50;
-        }
-        .header h2 {
-            margin: 5px 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: #555;
-        }
-        .header .doc-title {
-            margin-top: 30px;
-            font-size: 24px;
-            text-decoration: underline;
-            text-underline-offset: 8px;
+            font-weight: bold;
+            font-size: 14px;
             color: #000;
+            line-height: 1.6;
+            width: 200px;
         }
-        .content {
-            font-size: 20px;
-            line-height: 2.5;
-            text-align: right;
-            flex-grow: 1;
-            padding-top: 20px;
-        }
-        .field {
-            border-bottom: 1px dotted #000;
-            padding: 0 15px;
-            display: inline-block;
-            min-width: 100px;
+        .header-center {
             text-align: center;
-            font-weight: bold;
         }
-        .footer {
-            margin-top: 50px;
+        .header-center img {
+            width: 90px;
+        }
+        
+        /* Sub-Header ID/Date */
+        .sub-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            padding: 0 50px;
-        }
-        .sign-box {
-            text-align: center;
-            width: 250px;
-        }
-        .sign-box p {
-            margin: 10px 0;
+            padding: 0 20px;
             font-weight: bold;
+            color: #3498db; /* Blue for Date/Number as in image */
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        /* Body Content */
+        .form-body {
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+        }
+        .addressee {
+            font-weight: 800;
             font-size: 18px;
+            margin-bottom: 20px;
         }
-        .sign-placeholder {
-            margin-top: 40px;
-            border-bottom: 1px dotted #000;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
+        .greeting {
+            margin-bottom: 30px;
+            font-size: 16px;
         }
-        .meta-footer {
-            margin-top: 20px;
+        .subject-line {
             text-align: center;
-            font-size: 12px;
-            color: #bdc3c7;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            text-decoration: underline;
+            text-underline-offset: 5px;
+            margin: 20px 0 40px 0;
         }
-        /* Hide Browser Details */
-        @media print {
-            @page { margin: 0; }
-            body { -webkit-print-color-adjust: exact; }
+        .main-text {
+            font-size: 18px;
+            line-height: 2.2;
+            text-align: justify;
+            margin-bottom: 50px;
+        }
+        .closing {
+            font-size: 18px;
+            margin-bottom: 80px;
+            text-align: center;
+        }
+
+        /* Footer / Signatures */
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            margin-top: 50px;
+            position: relative;
+            z-index: 2;
+        }
+        .sig-block {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .sig-role {
+            margin-top: 5px;
+        }
+        .sig-name {
+            margin-top: 50px; /* Space for signature */
+        }
+
+        .english-footer {
+            text-align: center;
+            color: #bdc3c7;
+            font-size: 12px;
+            margin-top: 50px;
+            font-family: sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .field-highlight {
+            color: #c0392b; /* Reddish for inserted text if desired, or black */
+            color: black;
+            font-weight: bold;
         }
     </style>
     `;
@@ -586,52 +626,75 @@ window.printDailyLeave = function () {
 
     if (!name || !days || !date || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
-    const formattedDate = new Date(date).toLocaleDateString('ar-IQ');
+    const formattedDate = new Date(date).toLocaleDateString('en-GB'); // 17/1/2026 format
 
     const win = window.open('', '', 'height=900,width=800');
     win.document.write(`
         <html>
-        <head><title>طلب إجازة اعتيادية</title>${getPrintStyle()}</head>
+        <head><title>طلب إجازة اعتيادية</title>${getOfficialPrintStyle()}</head>
         <body>
-            <div class="page-frame">
-                <div class="header">
-                    <img src="logo.png" alt="Logo">
-                    <h1>كلية الأمل للعلوم الطبية التخصصية</h1>
-                    <h2>قسم الموارد البشرية - شعبة الإعلام</h2>
-                    <div class="doc-title">طلب إجازة اعتيادية</div>
-                </div>
-                
-                <div class="content">
-                    <p>السيد رئيس القسم المحترم / مسؤول الشعبة..</p>
-                    <p>يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة <span class="field">${days}</span> يوم/أيام.</p>
-                    <p>وذلك اعتباراً من تاريخ: <span class="field">${formattedDate}</span>.</p>
-                    <p>السبب: <span class="field">${reason}</span>.</p>
-                    <br>
-                    <p>مع التقدير..</p>
-                </div>
-
-                <div class="footer">
-                    <div class="sign-box">
-                        <p>توقيع الموظف</p>
-                        <p>${name}</p>
-                        <div class="sign-placeholder"></div>
+            <div class="outer-border">
+                <div class="inner-border">
+                    <img src="logo.png" class="watermark" alt="Watermark">
+                    
+                    <div class="header-grid">
+                        <div class="header-right">
+                            جمهورية العراق<br>
+                            وزارة التعليم العالي والبحث العلمي<br>
+                            كلية الأمل للعلوم الطبية التخصصية
+                        </div>
+                        <div class="header-center">
+                            <img src="logo.png" alt="Logo">
+                        </div>
+                        <div class="header-left">
+                            شعبة الاعلام<br>
+                            <br>
+                            مذكرة داخلية
+                        </div>
                     </div>
-                    <div class="sign-box">
-                        <p>مصادقة مسؤول الشعبة</p>
-                        <p>م.م علي حسين عبد</p>
-                        <div class="sign-placeholder"></div>
-                    </div>
-                </div>
 
-                <div class="meta-footer">
-                    نسخة محفوظة إلكترونياً - ${new Date().toLocaleDateString('en-GB')}
+                    <div class="sub-header">
+                        <div>العدد: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div>التاريخ: ${formattedDate}</div>
+                    </div>
+
+                    <div class="form-body">
+                        <div class="addressee">السيد مسؤول شعبة الاعلام المحترم..</div>
+                        <div class="greeting">تحية طيبة..</div>
+                        
+                        <div class="subject-line">م/ طلب اجازة</div>
+
+                        <div class="main-text">
+                            يرجى التفضل بالموافقة على منحي إجازة اعتيادية لمدة (<span class="field-highlight">${days}</span>) يوم واحد فقط، وذلك لـ: <span class="field-highlight">${reason}</span>.
+                        </div>
+
+                        <div class="closing">
+                            راجين تفضلكم بالموافقة مع وافر الاحترام والتقدير
+                        </div>
+                    </div>
+
+                    <div class="signatures">
+                        <div class="sig-block">
+                            <div>مقدم الطلب</div>
+                            <div class="sig-name">(${name})</div>
+                            <div class="sig-role">اسم الموظف المعني</div>
+                        </div>
+                        <div class="sig-block">
+                            <div>م.م علي حسين عبد</div>
+                            <div class="sig-name"></div>
+                            <div class="sig-role">مسؤول شعبة الاعلام</div>
+                        </div>
+                    </div>
+
+                    <div class="english-footer">
+                        AL-Amal College for Specialized Medical Sciences
+                    </div>
                 </div>
             </div>
         </body>
         </html>
     `);
     win.document.close();
-    // Allow image to load
     win.onload = function () { setTimeout(() => win.print(), 500); };
 };
 
@@ -639,12 +702,12 @@ window.printTimeLeave = function () {
     const name = document.getElementById('timeLeaveName').value;
     const tFrom = document.getElementById('timeFrom').value;
     const tTo = document.getElementById('timeTo').value;
-    const dateInput = document.getElementById('timeLeaveDate').value; // Read from input
+    const dateInput = document.getElementById('timeLeaveDate').value;
     const reason = document.getElementById('timeLeaveReason').value;
 
     if (!name || !tFrom || !tTo || !reason) { alert('يرجى ملء كافة الحقول'); return; }
 
-    const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('ar-IQ') : new Date().toLocaleDateString('ar-IQ');
+    const formattedDate = dateInput ? new Date(dateInput).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
 
     const formatTime = (t) => {
         let [h, m] = t.split(':');
@@ -656,40 +719,64 @@ window.printTimeLeave = function () {
     const win = window.open('', '', 'height=900,width=800');
     win.document.write(`
         <html>
-        <head><title>طلب إجازة زمنية</title>${getPrintStyle()}</head>
+        <head><title>طلب إجازة زمنية</title>${getOfficialPrintStyle()}</head>
         <body>
-            <div class="page-frame">
-                <div class="header">
-                    <img src="logo.png" alt="Logo">
-                    <h1>كلية الأمل للعلوم الطبية التخصصية</h1>
-                    <h2>قسم الموارد البشرية - شعبة الإعلام</h2>
-                    <div class="doc-title">طلب إجازة زمنية</div>
-                </div>
-                
-                <div class="content">
-                    <p>السيد رئيس القسم المحترم / مسؤول الشعبة..</p>
-                    <p>يرجى التفضل بالموافقة على منحي إجازة زمنية (ساعية) لغرض: <span class="field">${reason}</span>.</p>
-                    <p>وذلك يوم: <span class="field">${formattedDate}</span>.</p>
-                    <p>من الساعة: <span class="field">${formatTime(tFrom)}</span> إلى الساعة: <span class="field">${formatTime(tTo)}</span>.</p>
-                    <br>
-                    <p>مع التقدير..</p>
-                </div>
-
-                <div class="footer">
-                    <div class="sign-box">
-                        <p>توقيع الموظف</p>
-                        <p>${name}</p>
-                        <div class="sign-placeholder"></div>
+            <div class="outer-border">
+                <div class="inner-border">
+                    <img src="logo.png" class="watermark" alt="Watermark">
+                    
+                    <div class="header-grid">
+                        <div class="header-right">
+                            جمهورية العراق<br>
+                            وزارة التعليم العالي والبحث العلمي<br>
+                            كلية الأمل للعلوم الطبية التخصصية
+                        </div>
+                        <div class="header-center">
+                            <img src="logo.png" alt="Logo">
+                        </div>
+                        <div class="header-left">
+                            شعبة الاعلام<br>
+                            <br>
+                            مذكرة داخلية
+                        </div>
                     </div>
-                    <div class="sign-box">
-                        <p>مصادقة مسؤول الشعبة</p>
-                        <p>م.م علي حسين عبد</p>
-                        <div class="sign-placeholder"></div>
-                    </div>
-                </div>
 
-                <div class="meta-footer">
-                   نسخة محفوظة إلكترونياً - ${new Date().toLocaleDateString('en-GB')}
+                    <div class="sub-header">
+                        <div>العدد: ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
+                        <div>التاريخ: ${formattedDate}</div>
+                    </div>
+
+                    <div class="form-body">
+                        <div class="addressee">السيد مسؤول شعبة الاعلام المحترم..</div>
+                        <div class="greeting">تحية طيبة..</div>
+                        
+                        <div class="subject-line">م/ طلب اجازة زمنية</div>
+
+                        <div class="main-text">
+                            يرجى التفضل بالموافقة على منحي إجازة زمنية من الساعة (<span class="field-highlight">${formatTime(tFrom)}</span>) إلى الساعة (<span class="field-highlight">${formatTime(tTo)}</span>)، وذلك لـ: <span class="field-highlight">${reason}</span>.
+                        </div>
+
+                        <div class="closing">
+                            راجين تفضلكم بالموافقة مع وافر الاحترام والتقدير
+                        </div>
+                    </div>
+
+                    <div class="signatures">
+                        <div class="sig-block">
+                            <div>مقدم الطلب</div>
+                            <div class="sig-name">(${name})</div>
+                            <div class="sig-role">اسم الموظف المعني</div>
+                        </div>
+                        <div class="sig-block">
+                            <div>م.م علي حسين عبد</div>
+                            <div class="sig-name"></div>
+                            <div class="sig-role">مسؤول شعبة الاعلام</div>
+                        </div>
+                    </div>
+
+                    <div class="english-footer">
+                        AL-Amal College for Specialized Medical Sciences
+                    </div>
                 </div>
             </div>
         </body>
@@ -699,11 +786,7 @@ window.printTimeLeave = function () {
     win.onload = function () { setTimeout(() => win.print(), 500); };
 };
 
-// Auto-set Date to Today when opening forms
-document.querySelectorAll('input[type="date"]').forEach(input => {
-    input.valueAsDate = new Date();
-});
-
+// Global Exposure
 window.refreshData = function (btn) {
     if (btn) btn.disabled = true;
     fetchEmployees().then(() => fetchTasks()).finally(() => { if (btn) btn.disabled = false; alert('تم التحديث'); });
