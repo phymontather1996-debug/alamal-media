@@ -39,6 +39,11 @@ window.showSection = function (sectionId) {
             if (typeof setFormDefaults === 'function') setFormDefaults();
         }
 
+        // Render Diaries
+        if (sectionId === 'diaries') {
+            if (typeof renderDiaries === 'function') renderDiaries();
+        }
+
         // Auto-refresh data if empty
         if (['leave', 'time-leave', 'employee-login', 'admin'].includes(sectionId)) {
             if (employees.length === 0) fetchEmployees();
@@ -884,6 +889,72 @@ window.refreshData = function (btn) {
 
 
 // Global Exposure
+// Image Viewer Modal
+// --- Configuration: College Diaries Gallery ---
+// HOW TO ADD IMAGES:
+// 1. Place your image file (e.g., 'event1.jpg') in the 'diaries' folder.
+// 2. Add a new line below: { src: "diaries/event1.jpg", caption: "وصف الحدث هنا" },
+const diaryItems = [
+    // { src: "logo.png", caption: "شعار الكلية - مثال توضيحي" },
+    { src: "diaries/22.png", caption: "الصورة الاولى" },
+    { src: "diaries/11.png", caption: "يوميات الكلية" },
+    { src: "diaries/12.png", caption: "يوميات الكلية" },
+    { src: "diaries/13.png", caption: "يوميات الكلية" },
+    { src: "diaries/14.png", caption: "يوميات الكلية" },
+    { src: "diaries/15.png", caption: "يوميات الكلية" },
+    { src: "diaries/16.png", caption: "يوميات الكلية" },
+];
+
+let currentSlideIndex = 0;
+
+window.renderDiaries = function () {
+    const grid = document.getElementById('diaries-gallery-grid');
+    if (!grid) return;
+
+    if (diaryItems.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#777;">لا توجد صور حالياً.</p>';
+        return;
+    }
+
+    grid.innerHTML = diaryItems.map((item, index) => `
+        <div class="gallery-item" onclick="openImageModal(${index})">
+            <img src="${item.src}" alt="${item.caption}" style="width:100%; height:200px; object-fit:cover; border-radius:8px; cursor:pointer; transition: transform 0.3s;" onerror="this.src='logo.png'">
+            <div class="gallery-caption" style="padding: 10px; font-weight:bold; text-align:center;">${item.caption}</div>
+            <div class="gallery-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        </div>
+    `).join('');
+};
+
+window.openImageModal = function (index) {
+    if (typeof index === 'object') {
+        // Fallback if an element is passed instead of index (legacy support)
+        // But with new renderDiaries, we pass index.
+        return;
+    }
+
+    currentSlideIndex = index;
+    showModalImage(currentSlideIndex);
+    document.getElementById("image-viewer-modal").style.display = "block";
+};
+
+window.changeImage = function (n) {
+    // Stop propagation if triggered from click inside modal (though buttons are separate)
+    event.stopPropagation();
+    currentSlideIndex += n;
+    if (currentSlideIndex >= diaryItems.length) { currentSlideIndex = 0; }
+    if (currentSlideIndex < 0) { currentSlideIndex = diaryItems.length - 1; }
+    showModalImage(currentSlideIndex);
+};
+
+function showModalImage(index) {
+    const modalImg = document.getElementById("img01");
+    const captionText = document.getElementById("caption");
+
+    const item = diaryItems[index];
+    modalImg.src = item.src;
+    captionText.innerHTML = `${item.caption} (${index + 1} / ${diaryItems.length})`;
+}
+
 window.renderMyProfile = function () {
     if (!currentUser) return;
     document.getElementById('profile-name-display').innerText = currentUser.fullName;
